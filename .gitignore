@@ -1,0 +1,11 @@
+*.pro.user
+*.o
+*~
+*.user
+/moc_*.cpp
+/buddha.run
+/Makefile
+/Release
+/Debug
+/GeneratedFiles
+#opencl/
