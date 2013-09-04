@@ -249,7 +249,7 @@ int BuddhaGenerator::findPoint ( complex<double>& begin, double& centerDistance,
 	complex<double> tmp = begin;
 
 	// 64 - 512
-        #define FINDPOINTMAX 	256
+    #define FINDPOINTMAX 	256
 	
 	calculated = 0;
 	do {

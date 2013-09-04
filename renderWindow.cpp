@@ -129,8 +129,8 @@ void RenderWindow::paintEvent( QPaintEvent* ) {
 
 
 void RenderWindow::mousePressEvent(QMouseEvent *event) {
-	qDebug() << "RenderWindow::mousePressEvent()";
 	begMouse = endMouse = event->pos();
+	qDebug() << "RenderWindow::mousePressEvent() " << begMouse;
 }
 
 
@@ -142,7 +142,7 @@ void RenderWindow::mouseMoveEvent(QMouseEvent *event) {
 	if (event->buttons() & Qt::LeftButton) {
 		endMouse = event->pos();
 		if ( endMouse.x() > size().width() )  endMouse.setX( size().width() );
-        	if ( endMouse.y() > size().height() ) endMouse.setY( size().height() );
+        if ( endMouse.y() > size().height() ) endMouse.setY( size().height() );
 	}
 	
 	if ( event->buttons() & Qt::RightButton || event->buttons() & Qt::MidButton ) {
@@ -155,18 +155,18 @@ void RenderWindow::mouseMoveEvent(QMouseEvent *event) {
 
 
 void RenderWindow::mouseReleaseEvent(QMouseEvent *event) {
-	qDebug() << "RenderWindow::mouseReleaseEvent()";
 	endMouse = event->pos();
+	qDebug() << "RenderWindow::mouseReleaseEvent()" << endMouse;
+
 	if ( endMouse == begMouse ) return;
 	
 	
 	if ( event->button() == Qt::LeftButton ) {
-	
 		if ( endMouse.x() > size().width() ) endMouse.setX( size().width() );
-      		if ( endMouse.y() > size().height() ) endMouse.setY( size().height() );
+   		if ( endMouse.y() > size().height() ) endMouse.setY( size().height() );
 		
 		// calcolo il nuovo zoom
-		double scalex = (double) width() / fabs( (float) (( endMouse - begMouse ).x()) );
+		double scalex = (double) width() /  fabs( (float) (( endMouse - begMouse ).x()) );
 		double scaley = (double) height() / fabs( (float) (( endMouse - begMouse ).y()) );
 		double scale = min( scalex, scaley );
 		
@@ -177,7 +177,8 @@ void RenderWindow::mouseReleaseEvent(QMouseEvent *event) {
 		// TODO ugly, this has been just set in the previous call
 		//parent->putValues( b->cre + dx / b->scale, b->cim - dy / b->scale, parent->getScale() );
 		parent->setCre( b->cre + dx / b->scale );
-		parent->setCim( b->cim + dy / b->scale );
+		//parent->setCim( b->cim + dy / b->scale );
+		parent->setCim( b->cim - dy / b->scale );
 		parent->modelToGUI();
 		parent->sendValues( true );
 		disabledDrawing = true;

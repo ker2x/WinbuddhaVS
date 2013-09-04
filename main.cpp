@@ -31,13 +31,11 @@
 #include <iostream>
 #include <QApplication>
 #include "controlWindow.h"
-//#include "options.h"
 
 int main ( int argc, char** argv ) {
 	qDebug() << "main(), thread " << QThread::currentThreadId();
 	QApplication app(argc, argv);
 	ControlWindow control;
-    //Options options( &control, argc, argv );
 	control.show( );
     int out = app.exec();
     return out;

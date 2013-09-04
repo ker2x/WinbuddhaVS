@@ -117,12 +117,12 @@ ControlWindow::ControlWindow ( ) {
 	connect( reBox, SIGNAL( valueChanged( double ) ), this, SLOT( sendValues( ) ) );
 	connect( imBox, SIGNAL( valueChanged( double ) ), this, SLOT( sendValues( ) ) );
 	connect( zoomBox, SIGNAL( valueChanged( double ) ), this, SLOT( sendValues( ) ) );
-        connect( minRbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
-        connect( minGbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
-        connect( minBbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
-        connect( maxRbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
-        connect( maxGbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
-        connect( maxBbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
+    connect( minRbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
+    connect( minGbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
+    connect( minBbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
+    connect( maxRbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
+    connect( maxGbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
+    connect( maxBbox, SIGNAL( valueChanged( int ) ), this, SLOT( sendValues( ) ) );
 
 }
 
@@ -133,48 +133,48 @@ void ControlWindow::createGraphBox ( ) {
 
 	
 	iterationRedLabel = new QLabel( "Red iteration min/max:", graphBox );
-        minRbox = new QSpinBox(graphBox);
-        minRbox->setMinimum(0);
-        minRbox->setMaximum(INT_MAX);
-        minRbox->setAlignment(Qt::AlignCenter);
-        minRbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
+    minRbox = new QSpinBox(graphBox);
+    minRbox->setMinimum(0);
+    minRbox->setMaximum(INT_MAX);
+    minRbox->setAlignment(Qt::AlignCenter);
+    minRbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
 	minRbox->setValue(lowr);
 
-        maxRbox = new QSpinBox(graphBox);
-        maxRbox->setMinimum(0);
-        maxRbox->setMaximum(INT_MAX);
-        maxRbox->setAlignment(Qt::AlignCenter);
-        maxRbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
+    maxRbox = new QSpinBox(graphBox);
+    maxRbox->setMinimum(0);
+    maxRbox->setMaximum(INT_MAX);
+    maxRbox->setAlignment(Qt::AlignCenter);
+    maxRbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
 	maxRbox->setValue(highr);
 
 	iterationGreenLabel = new QLabel( "Green iteration min/max:", graphBox );
-        minGbox = new QSpinBox(graphBox);
-        minGbox->setMinimum(0);
-        minGbox->setMaximum(INT_MAX);
-        minGbox->setAlignment(Qt::AlignCenter);
-        minGbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
+    minGbox = new QSpinBox(graphBox);
+    minGbox->setMinimum(0);
+    minGbox->setMaximum(INT_MAX);
+    minGbox->setAlignment(Qt::AlignCenter);
+    minGbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
 	minGbox->setValue(lowg);
 
-        maxGbox = new QSpinBox(graphBox);
-        maxGbox->setMinimum(0);
-        maxGbox->setMaximum(INT_MAX);
-        maxGbox->setAlignment(Qt::AlignCenter);
-        maxGbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
+    maxGbox = new QSpinBox(graphBox);
+    maxGbox->setMinimum(0);
+    maxGbox->setMaximum(INT_MAX);
+    maxGbox->setAlignment(Qt::AlignCenter);
+    maxGbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
 	maxGbox->setValue(highg);
 
 	iterationBlueLabel = new QLabel( "Blue iteration min/max:", graphBox );
-        minBbox = new QSpinBox(graphBox);
-        minBbox->setMinimum(0);
-        minBbox->setMaximum(INT_MAX);
-        minBbox->setAlignment(Qt::AlignCenter);
-        minBbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
+    minBbox = new QSpinBox(graphBox);
+    minBbox->setMinimum(0);
+    minBbox->setMaximum(INT_MAX);
+    minBbox->setAlignment(Qt::AlignCenter);
+    minBbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
 	minBbox->setValue(lowb);
 
-        maxBbox = new QSpinBox(graphBox);
-        maxBbox->setMinimum(0);
-        maxBbox->setMaximum(INT_MAX);
-        maxBbox->setAlignment(Qt::AlignCenter);
-        maxBbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
+    maxBbox = new QSpinBox(graphBox);
+    maxBbox->setMinimum(0);
+    maxBbox->setMaximum(INT_MAX);
+    maxBbox->setAlignment(Qt::AlignCenter);
+    maxBbox->setButtonSymbols( QAbstractSpinBox::PlusMinus );
 	maxBbox->setValue(highb);
 
 
@@ -210,26 +210,26 @@ void ControlWindow::createGraphBox ( ) {
 	
 	
 	QVBoxLayout *vbox = new QVBoxLayout ( );
-        QHBoxLayout *rHLayout = new QHBoxLayout( );
-        QHBoxLayout *gHLayout = new QHBoxLayout( );
-        QHBoxLayout *bHLayout = new QHBoxLayout( );
+    QHBoxLayout *rHLayout = new QHBoxLayout( );
+    QHBoxLayout *gHLayout = new QHBoxLayout( );
+    QHBoxLayout *bHLayout = new QHBoxLayout( );
 
 	
 	
 	vbox->addWidget( iterationRedLabel );
-        rHLayout->addWidget(minRbox);
-        rHLayout->addWidget(maxRbox);
-        vbox->addLayout(rHLayout);
+    rHLayout->addWidget(minRbox);
+    rHLayout->addWidget(maxRbox);
+    vbox->addLayout(rHLayout);
 
 	vbox->addWidget( iterationGreenLabel );
-        gHLayout->addWidget(minGbox);
-        gHLayout->addWidget(maxGbox);
-        vbox->addLayout(gHLayout);
+    gHLayout->addWidget(minGbox);
+    gHLayout->addWidget(maxGbox);
+    vbox->addLayout(gHLayout);
 
 	vbox->addWidget( iterationBlueLabel );
-        bHLayout->addWidget(minBbox);
-        bHLayout->addWidget(maxBbox);
-        vbox->addLayout(bHLayout);
+    bHLayout->addWidget(minBbox);
+    bHLayout->addWidget(maxBbox);
+    vbox->addLayout(bHLayout);
 
 	//vbox->addStretch(1);
 	vbox->addWidget( reLabel );
@@ -239,7 +239,7 @@ void ControlWindow::createGraphBox ( ) {
 	vbox->addWidget( zoomLabel );
 	vbox->addWidget( zoomBox );
 	//vbox->addStretch(1);
-        graphBox->setLayout( vbox );
+    graphBox->setLayout( vbox );
 
 
 }
@@ -276,10 +276,10 @@ void ControlWindow::createRenderBox ( ) {
 	threadsLabel = new QLabel( "Threads:", renderBox );
 	threadsSlider = new QSlider( renderBox );
 	threadsSlider->setMinimum( 1 );
-        threadsSlider->setMaximum( QThread::idealThreadCount() );
+    threadsSlider->setMaximum( QThread::idealThreadCount() );
 	threadsSlider->setOrientation(Qt::Horizontal);
-        updateThreadLabel( QThread::idealThreadCount() );
-        threadsSlider->setValue( QThread::idealThreadCount() );
+    updateThreadLabel( QThread::idealThreadCount() );
+    threadsSlider->setValue( QThread::idealThreadCount() );
 	
 	QVBoxLayout *vbox = new QVBoxLayout ( );
 	vbox->addWidget( contrastLabel );
@@ -411,7 +411,7 @@ void ControlWindow::handleStartButton ( ) {
 	emit startCalculation( );
 	renderWin->timer->start( sleepTime );
 
-        screenShotAct->setEnabled( true );
+    screenShotAct->setEnabled( true );
 	
 	if ( renderWin->isHidden() ) 
 		renderWin->show();
@@ -460,13 +460,6 @@ void ControlWindow::modelToGUI ( ) {
 
 
 
-
-
-
-
-
-
-
 // FUNCTIONS FOR THE INPUT WIDGETS
 
 void ControlWindow::updateFpsLabel( ) {
@@ -503,7 +496,7 @@ void ControlWindow::setMaxBIteration(int value) {
 
 
 void ControlWindow::setLightness ( int value ) {
-        lightness = value;
+    lightness = value;
 	//b->setLightness( (double) value / ( lightSlider->maximum() - value + 1 ) );
 	//qDebug() <<"Lightness: %d %lf\n", value,(double) value / ( lightSlider->maximum() - value ) );
     lightLabel->setText( "Lightness [" + QString::number( lightness, 'd', 1 ) + "]" );
@@ -512,8 +505,8 @@ void ControlWindow::setLightness ( int value ) {
 }
 
 void ControlWindow::setContrast ( int value ) {
-        contrast = value;
-        contrastLabel->setText( "Contrast: [" + QString::number( contrast, 'd', 1 ) + "]" );
+    contrast = value;
+    contrastLabel->setText( "Contrast: [" + QString::number( contrast, 'd', 1 ) + "]" );
 	// ottengo un valore fra 0.0 e 2.0
 	//b->setContrast( (double) value / contrastSlider->maximum() * 2.0 );
 	b->setContrast( value );
@@ -573,11 +566,6 @@ void ControlWindow::showEvent( QShowEvent* ) {
 
 
 
-
-
-
-
-
 // UTILITY FUNCTIONS
 
 
@@ -631,6 +619,3 @@ void ControlWindow::saveScreenshot ( ) {
 			   
 	emit screenshotRequest( fileName );
 }
-
-
-
