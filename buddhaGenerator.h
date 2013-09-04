@@ -55,12 +55,9 @@ class BuddhaGenerator : public QThread {
 public:	
 	// general data and utility functions
 	Buddha* b;
-	BuddhaGenerator( ) {
-		raw = NULL;
-	}
-	~BuddhaGenerator ( ) {
-		delete[] raw;
-	}
+	BuddhaGenerator( )   { raw = NULL; }
+	~BuddhaGenerator ( ) { delete[] raw; }
+
 	void initialize ( Buddha* b );
 
 
@@ -72,22 +69,14 @@ public:
 	int inside ( complex<double>& c );
 	int evaluate ( complex<double>& begin, double& distance, unsigned int& contribute, unsigned int& calculated );
 	int findPoint ( complex<double>& begin, double& centerDistance, unsigned int& contribute, unsigned int& calculated );
-
-	//int normal();
 	int metropolis();
 	
-	
-	
 	// things for the random stuff
-	//struct random_data buf;
-	//char statebuf [256];
 	unsigned long int seed;
 	Random generator;
 	
 	void gaussianMutation ( complex<double>& z, double radius );
 	void exponentialMutation ( complex<double>& z, double radius );
-	
-	
 	
 	// for the synchronization and for controlling the execution
 	QMutex mutex;

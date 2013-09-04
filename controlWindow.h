@@ -42,27 +42,26 @@
 #include <QtGui/QtGui>
 #include "renderWindow.h"
 #include "buddha.h"
-//#include "options.h"
 
 #define PRECISION	15
 
-
 static const uint maxLightness = 200;
-static const uint maxContrast = 200;
+static const uint maxContrast = 300;
 static const uint maxFps = 40;
 
 class ControlWindow : public QMainWindow {
 	Q_OBJECT
 
 public:
-      double minRe;
-	  double maxRe;
-      double minIm;
-      double maxIm;
-	  double minScale; //should start at 1, not 100 as the contrast/lightness
-	  double maxScale;
-	  double step;
+    double minRe;
+	double maxRe;
+    double minIm;
+    double maxIm;
+	double minScale; //should start at 1, not 100 as the contrast/lightness
+	double maxScale;
+	double step;
 
+	int sleepTime;
     uint lowr, lowg, lowb;
 	uint highr, highg, highb;
     int contrast, lightness;
@@ -70,41 +69,16 @@ public:
     double cre, cim;
 	double scale;
 	Buddha* b;
-    //Options* options;
 
-
-	
-	// XXX test values
-	//cre = -1.009338378906250; cim = -0.907791137695312; scale = 131072;
-	//cre = -1.267493247985840; cim = -0.355451583862305; scale = 1.04858e+06;
-	//cre = -1.267614841461182; cim = -0.355297327041626; scale = 4.1943e+06;
-	//cre = -1.484510898590088; cim = 0.0; scale = 2.09715e+06;
-	//cre = -1.262351593017578; cim = -0.408171241760254; scale = 1.04858e+06;
-	//cre = 1.021250465869904; cim = 0.0; scale = 16384;
-	//cre = -1.211546160731565; cim = -0.703227713802065; scale = 16384;
-	//cre = -1.267664853065472; cim = -0.355240946698251; scale = 4.29496e+09;
-	// per gli artefatti
-	//cre = -1.991965715937304; cim = 0.0; scale = 8192.0;
-	
-	// very good test for finding random points
-    //cre = -0.402435063612580;
-    //cim = 0.602973178150621;
-    //scale = 2157234.45378;
-	
-	
 	QWidget *centralWidget;
+
 	QGroupBox *graphBox;
 	QGroupBox *buttonsBox;
-	QLabel *iterationRedLabel;
-	QLabel *reLabel;
-	QDoubleSpinBox *reBox;
-	QLabel *imLabel;
-	QDoubleSpinBox *imBox;
-	QLabel *zoomLabel;
-	QDoubleSpinBox *zoomBox;
-	QLabel *iterationGreenLabel;
-    QLabel *iterationBlueLabel;
+	QGroupBox *renderBox;
 
+	QDoubleSpinBox *reBox;
+	QDoubleSpinBox *imBox;
+	QDoubleSpinBox *zoomBox;
 
     QSpinBox *minRbox;
     QSpinBox *maxRbox;
@@ -113,23 +87,34 @@ public:
     QSpinBox *minBbox;
     QSpinBox *maxBbox;
 
-	QGroupBox *renderBox;
+	QLabel *iterationRedLabel;
+	QLabel *reLabel;
+	QLabel *imLabel;
+	QLabel *zoomLabel;
+	QLabel *iterationGreenLabel;
+    QLabel *iterationBlueLabel;
 	QLabel *contrastLabel;
-	QSlider *contrastSlider;
 	QLabel *lightLabel;
+	QLabel *fpsLabel;
+	QLabel *threadsLabel;
+	QLabel *mouseLabel;
+
+	QSlider *contrastSlider;
 	QSlider *lightSlider;
-	QLabel *fpsLabel, *threadsLabel;
-	QSlider *fpsSlider, *threadsSlider;
-	QRadioButton* normalZoom, *mouseZoom;
+	QSlider *fpsSlider;
+	QSlider *threadsSlider;
+
+	QRadioButton *normalZoom;
+	QRadioButton *mouseZoom;
 	QIcon* icon;
-	QLabel* mouseLabel;
-	
+
 	QMenuBar *menuBar;
-	QMenu* fileMenu, *viewMenu, *helpMenu;
+	QMenu *fileMenu;
+	QMenu *viewMenu;
+	QMenu *helpMenu;
 	
 	RenderWindow* renderWin;
 	
-	int sleepTime;
 
 	void createGraphBox ( );
 	void createRenderBox ( );
@@ -148,9 +133,9 @@ public:
 	
 	bool valuesChanged( );
 	static int expVal ( int x ) { return (int) pow( 2.0, x / 2.0 ); }
-    double getCre( ) { return cre; }
-    double getCim( ) { return cim; }
-    double getScale( ) { return scale; }
+    double getCre( )	{ return cre; }
+    double getCim( )	{ return cim; }
+    double getScale( )	{ return scale; }
 	void modelToGUI ( );
 
 public slots:

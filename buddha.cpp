@@ -61,40 +61,18 @@ Buddha::Buddha( QObject *parent ) : QThread( parent ) {
 
 
 void Buddha::setLightness ( int lightness ) {
-	//mutex.lock();
 	this->lightness = lightness;
         realLightness = (float) lightness / ( maxLightness - lightness + 1 );
-	//mutex.unlock();
 }
 
 void Buddha::setContrast ( int contrast ) {
-	//mutex.lock();
 	this->contrast = contrast;
         realContrast = (float) contrast / maxContrast * 2.0;
-	//mutex.unlock();
 }
-
-
-/*void Buddha::preprocessImage ( ) {
-	//unsigned int maxr, minr, maxb, minb, maxg, ming;
-	float midr, midg, midb;
-
-	// this can be optimized but I don't think it impacts very much on the total time
-	// taken to convert the data into RGB
-	getInfo( raw, size, minr, midr, maxr, ming, midg, maxg, minb, midb, maxb );
-	//realContrast = (float) contrast / ControlWindow::maxContrast * 2.0;
-	//realLightness = (float) lightness / ( ControlWindow::maxLightness - lightness + 1 );
-	//float contrast = 0.25;
-		
-	rmul = maxr > 0 ? log( scale ) / (float) powf( maxr, realContrast ) * 150.0 * realLightness : 0.0;
-	gmul = maxg > 0 ? log( scale ) / (float) powf( maxg, realContrast ) * 150.0 * realLightness : 0.0;
-	bmul = maxb > 0 ? log( scale ) / (float) powf( maxb, realContrast ) * 150.0 * realLightness : 0.0;
-}*/
 
 
 
 void Buddha::createImage ( ) {
-	//cout << "Buddha::toImage()\n";
 	unsigned char r, g, b;
 	unsigned int j = 0;
 	for ( unsigned int i = 0; i < size; ++i, j += 3 ) {
@@ -108,31 +86,12 @@ void Buddha::createImage ( ) {
 
 
 // this function takes the raw data from generator i and sums it
-// to the local raw array. The main difference is that if QTOPENCL is activated
-// I have to use an ARGB array of ints instead the simple RGB array kept by
-// every generator. This is because i get a lot of strange errors from the
-// execution of the opencl kernel. I don't know if this is a bug but for the
-// moment i keep this (useless) difference between using ARGB and RGB.
+// to the local raw array.
 void Buddha::reduceStep ( int i, bool checkValues ) {
 	unsigned int j;
 	if ( checkValues ) maxr = maxg = maxb = 0;
 
 	QMutexLocker( &generators[i]->mutex );
-#if QTOPENCL
-	unsigned int k = 0;
-	for ( j = 0; j < 3 * size; j += 3, k += 4 ) {
-		raw[k+1] += generators[i]->raw[j+0];
-		raw[k+2] += generators[i]->raw[j+1];
-		raw[k+3] += generators[i]->raw[j+2];
-
-		if ( checkValues ) {
-			if ( raw[k+1] > maxr ) maxr = raw[k+1];
-			if ( raw[k+2] > maxg ) maxg = raw[k+2];
-			if ( raw[k+3] > maxb ) maxb = raw[k+3];
-		}
-	}
-
-#else
 	for ( j = 0; j < 3 * size; j += 3 ) {
 		raw[j+0] += generators[i]->raw[j+0];
 		raw[j+1] += generators[i]->raw[j+1];
@@ -144,7 +103,6 @@ void Buddha::reduceStep ( int i, bool checkValues ) {
 			if ( raw[j+2] > maxb ) maxb = raw[j+2];
 		}
 	}
-#endif	
 
 	if ( checkValues ) {
 		rmul = maxr > 0 ? log( scale ) / (float) powf( maxr, realContrast ) * 150.0 * realLightness : 0.0;
@@ -159,11 +117,7 @@ void Buddha::reduceStep ( int i, bool checkValues ) {
 // TODO. This could be done in logarithmic time using cooperation between
 // generators, for the moment I keep this version for simplicity.
 void Buddha::reduce ( ) {
-#if QTOPENCL
-	memset( raw, 0, 4 * size * sizeof( int ) );
-#else
 	memset( raw, 0, 3 * size * sizeof( int ) );
-#endif
 	for ( int i = 0; i < threads; ++i )
 		reduceStep( i, i == (threads - 1) );
 }
@@ -176,28 +130,10 @@ void Buddha::updateRGBImage( ) {
 	reduce();
 	printf( "Time taken by the reduce steps: %d ms. ", time.elapsed() );
 	time.start();
-#if QTOPENCL
-	srcImageBuffer = context.createImage2DHost(
-		QCLImageFormat( QCLImageFormat::Order_ARGB, QCLImageFormat::Type_Unnormalized_UInt32 ),
-		raw, QSize( w, h ), QCLMemoryObject::ReadOnly );
-
-	/*qDebug() << "bestLocalWorkSize()" << convert.bestLocalWorkSizeImage2D() << "\n"
-		 << "globalWorkSize()" << convert.globalWorkSize() << "\n"
-		 << "localWorkSize()" << convert.localWorkSize() << "\n"
-		 << "preferredWorkSizeMultiple()" << convert.preferredWorkSizeMultiple();*/
-
-	convert( srcImageBuffer, dstImageBuffer, realContrast, rmul, gmul, bmul );
-
-	mutex.lock();
-	dstImageBuffer.read(RGBImage, QRect(0, 0, w, h) );
-	emit imageCreated( );
-	mutex.unlock();
-#else
 	mutex.lock();
 	createImage( );
 	emit imageCreated( );
 	mutex.unlock();
-#endif
 	printf( "Image build: %d ms.\n", time.elapsed() );
 }
 
@@ -232,14 +168,14 @@ void Buddha::set( double re, double im, double s, uint lr, uint lg, uint lb, uin
 	maxre = cre + rangere * 0.5;
 	minim = cim - rangeim * 0.5;
 	maxim = cim + rangeim * 0.5;
-        lowr = lr;
-        lowg = lg;
-        lowb = lb;
-        highr = hr;
-        highg = hg;
-        highb = hb;
+    lowr = lr;
+    lowg = lg;
+    lowb = lb;
+    highr = hr;
+    highg = hg;
+    highb = hb;
 	high = max( max( highr, highg ), highb );
-        low = min( min(lowr, lowg), lowb);
+    low = min( min(lowr, lowg), lowb);
 	resizeSequences( );
 	//status = RUN;
 	

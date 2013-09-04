@@ -43,7 +43,6 @@
 #include <QImage>
 #include <cstdio>
 #include <QDebug>
-//#include "complex.h"
 #include <complex>
 #include "staticStuff.h"
 
@@ -65,7 +64,6 @@ class Buddha : public QThread {
 	vector<BuddhaGenerator*> generators;
 	CurrentStatus generatorsStatus;
 	
-	//void preprocessImage ( );
 	void createImage ( );
 
 public:	

@@ -38,68 +38,14 @@ using namespace std;
 #endif
 
 
-// these are not for the buddhabrot, are others functions
-
-// this is the anti-buddhabrot evaluate function
-// it would be nice to put a flag somewhere and have the possibility
-// somewhere to choose from the interface if render the buddhabrot or
-// the antibuddhabrot.
-/*int BuddhaGenerator::anti ( unsigned int& calculated ) {
-	buddha::complex z;
-	unsigned int i;
-	
-	for ( i = 0; i < b->high - 1; ) {
-		
-		if ( seq[i].mod( ) > 4.0 ) {
-			calculated = i;
-			return -1;
-		}
-		
-		z.re = sqr( seq[i].re ) - sqr( seq[i].im ) + seq[0].re;
-		z.im = 2.0 * seq[i].re * seq[i].im + seq[0].im;
-		seq[++i].re = z.re;
-		seq[i].im = z.im;
-	}
-	
-	calculated = b->high;
-	return b->high - 1;
-}
-
-int BuddhaGenerator::randomTest ( unsigned int& calculated ) {
-
-	static Random gen( seed );
-
-	for ( int i = 0; i < 1000000; i++ ) {
-		seq[0].re = seq[0].im = 0.0;
-		gen.exponential( seq[0].re, seq[0].im,0.0001 );
-
-		mutex.lock();
-		drawPoint( seq[0], 1, 1,1 );
-		if ( !flow( ) ) {
-			mutex.unlock();
-			return -1;
-		}
-		mutex.unlock();
-	}
-
-	return 0;
-}
-*/
-
-
-
-
-
 void BuddhaGenerator::initialize ( Buddha* b ) {
-	qDebug() << "BuddhaGenerator::initialize()";
+	//qDebug() << "BuddhaGenerator::initialize()";
 	this->b = b;
-	
+
 	seed = powf ( (unsigned long int) this & 0xFF, M_PI ) + ( ( (unsigned long int) this >> 16 ) & 0xFFFF );
-	
-	//buf.state = (int32_t*) statebuf; // this fixes the segfault
-	//initstate_r( seed, statebuf, sizeof( statebuf ), &buf );
 	generator.seed( seed );
 	
+	// TODO : Add tests
 	raw = (unsigned int*) realloc( raw, 3 * b->size * sizeof( unsigned int ) );
 	memset( raw, 0, 3 * b->size * sizeof( unsigned int ) );
 	seq.resize( b->high - b->low );
@@ -110,74 +56,68 @@ void BuddhaGenerator::initialize ( Buddha* b ) {
 }
 
 bool BuddhaGenerator::flow ( ) {
-	//qDebug() <<"flow()\n" );
-	// note that pauseCondition has been set previously
-	//QMutexLocker lock ( &mutex );
 	
 	if ( status == PAUSE ) {
-		//pauseCondition->wakeOne();
 		b->semaphore.release( 1 );
 		resumeCondition.wait( &mutex );
-		//b->semaphore.acquire( 1 );
+	} else if ( status == STOP ) {
+		return false;
 	}
-	if ( status == STOP ) return false;
-	
+
 	return true;
 }
 
 
 void BuddhaGenerator::pause ( ) {
-	//QMutexLocker lock ( &mutex );
 	status = PAUSE;
-	//pauseCondition->wait( &mutex );
 }
 
 void BuddhaGenerator::resume ( ) {
-	//QMutexLocker lock ( &mutex );
 	status = RUN;
 	resumeCondition.wakeOne();
 }
 
 void BuddhaGenerator::stop ( ) {
-	//QMutexLocker lock ( &mutex );
 	status = STOP;
-	//pauseSemaphore->release( 1 );
 }
 
 
 
-
-
-
-
 void BuddhaGenerator::drawPoint ( complex<double>& c, bool drawr, bool drawg, bool drawb ) {
+
 	register unsigned int x, y;
-	
+	const double scale = b->scale;
+	const unsigned int w = b->w;
+	const double minim = b->minim;
+	const double maxim = b->maxim;
+	const double minre = b->minre;
+	const double maxre = b->maxre;
+
+
 	#define plotIm( c, drawr, drawg, drawb ) \
-	if ( c.imag() > b->minim && c.imag() < b->maxim ) { \
-		y = ( b->maxim - c.imag() ) * b->scale; \
-		if ( drawb )	raw[ y * 3 * b->w + 3 * x + 2 ]++;	\
-		if ( drawr )	raw[ y * 3 * b->w + 3 * x + 0 ]++;	\
-		if ( drawg )	raw[ y * 3 * b->w + 3 * x + 1 ]++;	\
+	if ( c.imag() > minim && c.imag() < maxim ) { \
+		y = ( maxim - c.imag() ) * scale; \
+		if ( drawb )	raw[ y * 3 * w + 3 * x + 2 ]++;	\
+		if ( drawr )	raw[ y * 3 * w + 3 * x + 0 ]++;	\
+		if ( drawg )	raw[ y * 3 * w + 3 * x + 1 ]++;	\
 	}
 	
-	if ( c.real() < b->minre ) return;
-	if ( c.real() > b->maxre ) return;
+	if ( c.real() < minre ) return;
+	if ( c.real() > maxre ) return;
 	
-	x = ( c.real() - b->minre ) * b->scale;
-	//if ( x >= b->w ) return; // activate in case of problems
+	x = ( c.real() - minre ) * scale;
+	//if ( x >= w ) return; // activate in case of problems
 	
-        // the y coordinates are referred to the point (b->minre, b->maxim), and are symetric in
+    // the y coordinates are referred to the point (b->minre, b->maxim), and are symetric in
 	// respect of the real axis (re = 0). So I draw always also the simmetric point (I try).
 	plotIm( c, drawr, drawg, drawb );
-	
-	c = complex<double>(c.real(),-c.imag());
-	plotIm( c, drawr, drawg, drawb );
+	plotIm( complex<double>(c.real(),-c.imag()), drawr, drawg, drawb );
 }
 
 
 // test if a point is inside the interested area
 int BuddhaGenerator::inside ( complex<double>& c ) {
+
 	return  c.real() <= b->maxre &&
                 c.real() >= b->minre &&
 				( ( c.imag() <= b->maxim && c.imag() >= b->minim ) ||
@@ -194,14 +134,22 @@ int BuddhaGenerator::evaluate ( complex<double>& begin, double& centerDistance,
 
 	complex<double> last = begin;	// holds the last calculated point
 	complex<double> critical = last;// for periodicity check
+
 	unsigned int j = 0, criticalStep = STEP;
 	double tmp = 64.0;
 	bool isInside;
 	centerDistance = 64.0;
 	contribute = 0;
-    double cr = begin.real();
-    double ci = begin.imag();
-    double ci2 = ci*ci;
+    
+	const double cr = begin.real();
+    const double ci = begin.imag();
+    const double ci2 = ci*ci;
+
+	const unsigned int low = b->low;
+	const unsigned int high = b->high;
+	const double cre = b->cre;
+	const double cim = b->cim;
+
 
     //Quick rejection check if c is in 2nd order period bulb
      if( (cr+1.0) * (cr+1.0) + ci2 < 0.0625) return -1;
@@ -218,9 +166,9 @@ int BuddhaGenerator::evaluate ( complex<double>& begin, double& centerDistance,
      if ((((cr+0.125)*(cr+0.125)) + (ci-0.744)*(ci-0.744)) < 0.0088) return -1;
      if ((((cr+0.125)*(cr+0.125)) + (ci+0.744)*(ci+0.744)) < 0.0088) return -1;
 
-	for ( unsigned int i = 0; i < b->high; ++i ) {
+	for ( unsigned int i = 0; i < high; ++i ) {
 		// when low <= i < high the points are saved for drawing
-		if ( i >= b->low ) seq[j++] = last;
+		if ( i >= low ) seq[j++] = last;
 
 		// this checks if the last point is inside the screen
 		if ( ( isInside = inside( last ) ) ) {
@@ -231,8 +179,8 @@ int BuddhaGenerator::evaluate ( complex<double>& begin, double& centerDistance,
 		// if we didn't passed inside the screen calculate the distance
 		// it will update after the variable centerDistance
 		if ( centerDistance != 0.0 ) {
-			tmp = ( last.real() - b->cre ) * ( last.real() - b->cre ) +
-			      ( last.imag() - b->cim ) * ( last.imag() - b->cim );
+			tmp = ( last.real() - cre ) * ( last.real() - cre ) +
+			      ( last.imag() - cim ) * ( last.imag() - cim );
 			if ( tmp < centerDistance && norm(last) < 4.0 ) centerDistance = tmp;
 		}
 
@@ -269,12 +217,10 @@ int BuddhaGenerator::evaluate ( complex<double>& begin, double& centerDistance,
 
 
 		tmp = last.real() * last.real() - last.imag() * last.imag() + begin.real();
-		//last.imag() = 2.0 * last.real() * last.imag() + begin.imag();
-		last = complex<double>(last.real(), 2.0 * last.real() * last.imag() + begin.imag());
-		last = complex<double>(tmp, last.imag());
+		last = complex<double>(tmp, 2.0 * last.real() * last.imag() + begin.imag());
 	}
 	
-	calculated = b->high;
+	calculated = high;
 	return -1;
 }
 
@@ -284,16 +230,12 @@ inline void BuddhaGenerator::gaussianMutation ( complex<double>& z, double radiu
 	double redev, imdev;
 	generator.gaussian( redev, imdev, radius );
 	z = complex<double>(z.real() + redev, z.imag() + imdev);
-//	z.real() += redev;
-//	z.imag() += imdev;
 }
 
 inline void BuddhaGenerator::exponentialMutation ( complex<double>& z, double radius ) {
 	double redev, imdev;
 	generator.exponential( redev, imdev, radius );
 	z = complex<double>(z.real() + redev, z.imag() + imdev);
-//	z.real() += redev;
-//	z.imag() += imdev;
 }
 
 

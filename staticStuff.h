@@ -47,16 +47,4 @@
 #endif
 
 
-// x MUST be an int32_t
-/*#define scaleToOne(x)		( ( (x) << 1 ) / (double) RAND_MAX )
-#define scaleToTwo(x)		( scaleToOne(x) * 2.0 )
-#define scaleToOnePositive(x)	( (x) / (double) RAND_MAX )*/
-
-
-
-
-//void getInfo ( unsigned int* raw, unsigned int size, unsigned int& minr, float& midr, unsigned int& maxr,
-//		      unsigned int& ming, float& midg, unsigned int& maxg, unsigned int& minb, float& midb, unsigned int& maxb );
-
-
 #endif

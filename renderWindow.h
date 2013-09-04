@@ -30,11 +30,8 @@
 #define RENDERWINDOW_H
 
 
-//#include <QMainWindow>
 #include <QtWidgets/QWidget>
-//#include <QStatusBar>
 #include "buddha.h"
-
 
 
 class QAction;

@@ -3,12 +3,6 @@
 
 #include <stdint.h>
 
-// #define USE_BOOST		1
-
-#if USE_BOOST
-#include <boost/random.hpp>
-#endif
-
 // RAND_MAX on windows is 0x7FFF
 #ifdef _WIN32
 #undef RAND_MAX
@@ -17,35 +11,21 @@
 
 class Random {
 private:
-#if USE_BOOST
-	// the best are mt19937, taus88, rand48 (in order of goodness-slowness)
-	typedef boost::rand48 random_generator;
-	random_generator generator;
-
-	inline int32_t gen ( ) {
-		return generator() & RAND_MAX;
-	}
-#else
 	uint32_t x, y, z, w;
 
 	inline int32_t gen ( ) {
 		uint32_t t;
-
 		t = x ^ (x << 11);
 		x = y; y = z; z = w;
 		return ( w = w ^ (w >> 19) ^ (t ^ (t >> 8)) ) & RAND_MAX;
 	}
-#endif
+
 public:
 	Random ( uint32_t seed = 123456789 ) {
-#if USE_BOOST
-		generator.seed( seed );
-#else
 		x = seed;
 		y = 362436069;
 		z = 521288629;
 		w = 88675123;
-#endif
 	}
 
 	// get uniformly an integer in [0,RAND_MAX)
@@ -139,11 +119,7 @@ public:
 
 	// change the seed
 	void seed ( uint32_t seed ) {
-#if USE_BOOST
-		generator.seed( seed );
-#else
 		x = seed;
-#endif
 	}
 };
 

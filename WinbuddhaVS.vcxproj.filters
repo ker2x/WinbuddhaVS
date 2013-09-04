@@ -75,9 +75,6 @@
     <ClInclude Include="random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="complex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="buddhaGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
