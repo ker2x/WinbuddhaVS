@@ -30,9 +30,6 @@
 #ifndef BUDDHA_H
 #define BUDDHA_H
 
-
-#define TEST		0
-
 #include <string>
 #include <vector>
 #include <cmath>
@@ -53,10 +50,6 @@ enum CurrentStatus { PAUSE, STOP, RUN };
 
 class BuddhaGenerator;
 
-
-
-
-
 class Buddha : public QThread {
 	Q_OBJECT
 		
@@ -76,6 +69,7 @@ public:
 	// since this class is also used as "container" for the various generators
 	// I use directly public variables instead private members and functions like set*()
 	// buddhabrot characteristics
+	// r,g,b is red, green, blue. of course.
 	double maxre, maxim;
 	double minre, minim;
 	double cre, cim;
@@ -89,10 +83,9 @@ public:
     unsigned int w, h;
 	unsigned int size;
 	
-	
 	// things for the plot
 	unsigned int* raw;		// i want to avoid this in the future XXX
-	unsigned int* RGBImage;		// here will be built the QImage
+	unsigned int* RGBImage;	// here will be built the QImage
 	float rmul, gmul, bmul, realContrast, realLightness;
 	int contrast, lightness;
 	unsigned int maxr, minr, maxb, minb, maxg, ming;
@@ -110,6 +103,7 @@ signals:
 	void stoppedGenerators( bool);
 	void startedGenerators( bool);
 	void settedValues( );
+
 public slots:
 	// never call directly these functions from the GUI!!!
 	void startGenerators( );

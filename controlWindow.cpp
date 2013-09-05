@@ -25,7 +25,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #include "controlWindow.h"
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QShortcut>
@@ -34,14 +33,32 @@
 #include <QtGui>
 #include <iostream>
 
+/******************************************************
+ * This is a QMainWindow called from main()           *
+ * 1) main() call the constructor (see next comments) *
+ * 2) main() call show() which raise showEvent()      *
+ * 3) showEvent() call ModelToGui()                   *
+ * 4) Wait for events ...                             *
+ ******************************************************/
 
 
-ControlWindow::ControlWindow ( ) {
-	//timer = new QTimer( this );
-	b = new Buddha( );
-	icon = new QIcon( "resources/icon.png" );
-	setWindowIcon( *icon );
+/* Constructor, called from main() 
+ * 1) Call Buddha constructor, which is a thread dealing with other threads (for asynchronicity between GUI and Computation)
+ * 2) Call RenderWindow constructor (but do not show it), it's a QWidget without it's own thread
+ * 3) Set default parameters
+ * 4) Create widgets
+ * 5) Connect slots & signals
+ */
+ControlWindow::ControlWindow() {
 
+	// TODO : (re)Create an icone resources
+	//icon = new QIcon("resources/icon.png");
+	//setWindowIcon(*icon);
+
+	b = new Buddha(); // Create Buddha thread that live its own life to deal with buddhaGenerator(s)
+	renderWin = new RenderWindow( this, b );
+
+	// Default parmaters, set here because data member initialization isn't allowed in .h
     cre = cim = 0.0;
     lowr = 50;
     highr = 100;
@@ -58,13 +75,14 @@ ControlWindow::ControlWindow ( ) {
 	maxScale = 1.34217728E+8 * 128.0;
 	step = 0.001;
 
+	// Create Controls
 	centralWidget = new QWidget( this );
 	createGraphBox();
 	createRenderBox();
 	createControlBox();
 	createMenus();
 	
-	renderWin = new RenderWindow( this, b );
+	// Add controls to ControlWindow
 	QHBoxLayout *hbox = new QHBoxLayout( );
 	QVBoxLayout *vbox = new QVBoxLayout( );
 	vbox->addWidget( renderBox );
@@ -75,8 +93,10 @@ ControlWindow::ControlWindow ( ) {
 	setCentralWidget( centralWidget );
 	setMenuBar( menuBar );
 
-	resize( 600, 400 );
+	resize( 600, 400 ); // Give more room to sliders
 
+	/* Connect slots & signals */
+	// Min/Max iteration for R,V,B
     connect(minRbox, SIGNAL(valueChanged(int)), this, SLOT(setMinRIteration(int)));
     connect(minGbox, SIGNAL(valueChanged(int)), this, SLOT(setMinGIteration(int)));
     connect(minBbox, SIGNAL(valueChanged(int)), this, SLOT(setMinBIteration(int)));
@@ -84,28 +104,32 @@ ControlWindow::ControlWindow ( ) {
     connect(maxGbox, SIGNAL(valueChanged(int)), this, SLOT(setMaxGIteration(int)));
     connect(maxBbox, SIGNAL(valueChanged(int)), this, SLOT(setMaxBIteration(int)));
 
+	// Coordinate & zoom
 	connect( reBox, SIGNAL( valueChanged( double ) ), this, SLOT( setCre( double ) ) );
 	connect( imBox, SIGNAL( valueChanged( double ) ), this, SLOT( setCim( double ) ) );
 	connect( zoomBox, SIGNAL( valueChanged( double ) ), this, SLOT( setScale( double ) ) );
 
+	// Sliders
 	connect( lightSlider, SIGNAL( valueChanged( int ) ), this, SLOT( setLightness( int ) ) );
 	connect( contrastSlider, SIGNAL( valueChanged( int ) ), this, SLOT( setContrast( int ) ) );
 	connect( fpsSlider, SIGNAL( valueChanged( int ) ), this, SLOT( setFps( int ) ) );
 	connect( threadsSlider, SIGNAL( valueChanged( int ) ), this, SLOT( setThreadNum( int ) ) );
+
+	// Buttons
 	connect( startButton, SIGNAL( clicked() ), this, SLOT(handleStartButton()));
-	//connect( currentButton, SIGNAL( clicked() ), this, SLOT( handleCurrentButton() ) );
 	connect( resetButton, SIGNAL( clicked() ), this, SLOT( handleResetButton() ) );
-	//connect( defaultButton, SIGNAL( clicked() ), this, SLOT( handleDefaultButton() ) );
 	connect( normalZoom, SIGNAL( toggled( bool) ), renderWin, SLOT( setMouseMode( bool ) ) );
 	
-	// i set some shortcuts also for renderWin
+	// Shortcuts
 	connect( new QShortcut( startButton->shortcut(), renderWin ), SIGNAL(activated()), startButton, SLOT(animateClick()) );
 	connect( new QShortcut( resetButton->shortcut(), renderWin ), SIGNAL(activated()), resetButton, SLOT(animateClick()) );
 	connect( new QShortcut( screenShotAct->shortcut(), renderWin ), SIGNAL(activated()), this, SLOT(saveScreenshot()) );
 	
-        connect( this, SIGNAL( setValues( double, double, double, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, QSize, bool ) ),
+	// Uglyyyyyy
+    connect( this, SIGNAL( setValues( double, double, double, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, QSize, bool ) ),
                  b, SLOT( set( double, double, double, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, QSize, bool ) ) );
 
+	// Internal
 	connect( this, SIGNAL( startCalculation( ) ), b, SLOT( startGenerators( ) ) );
 	connect( this, SIGNAL( stopCalculation( ) ), b, SLOT( stopGenerators( ) ) );
 	connect( this, SIGNAL( pauseCalculation( ) ), b, SLOT( pauseGenerators( ) ) );
@@ -128,9 +152,11 @@ ControlWindow::ControlWindow ( ) {
 
 
 
+/*
+ * Called by Constructor
+ */
 void ControlWindow::createGraphBox ( ) {
 	graphBox = new QGroupBox( tr( "Graph quality" ), this );
-
 	
 	iterationRedLabel = new QLabel( "Red iteration min/max:", graphBox );
     minRbox = new QSpinBox(graphBox);
@@ -246,7 +272,9 @@ void ControlWindow::createGraphBox ( ) {
 
 
 
-
+/*
+ * Called by Constructor
+ */
 void ControlWindow::createRenderBox ( ) {
 
     lightness = 50;
@@ -295,6 +323,9 @@ void ControlWindow::createRenderBox ( ) {
 
 }
 
+/*
+ * Called by CreateMenu
+ */
 void ControlWindow::createActions ( ) {
 	exitAct = new QAction(tr("E&xit"), this);
 	exitAct->setShortcut(tr("Ctrl+Q"));
@@ -326,6 +357,9 @@ void ControlWindow::createActions ( ) {
 */
 }
 
+/*
+ * Called by Constructor
+ */
 void ControlWindow::createMenus ( ) {
 	createActions( );
 	menuBar = new QMenuBar( this );
@@ -345,6 +379,9 @@ void ControlWindow::createMenus ( ) {
 	menuBar->addMenu(helpMenu);
 }
 
+/*
+ * Called by Constructor
+ */
 void ControlWindow::createControlBox ( ) {
 	
 	buttonsBox = new QGroupBox( "Controls", this );
@@ -451,7 +488,6 @@ void ControlWindow::modelToGUI ( ) {
 	imBox->setValue( cim );
 	zoomBox->setValue( scale );
 
-	// why?
     setCre( cre );
     setCim( cim );
     setScale( scale );

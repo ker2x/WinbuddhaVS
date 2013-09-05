@@ -39,9 +39,22 @@
 #include <stdio.h>
 
 
+/********************************************************************************************************
+ * Buddha is a Qthread, start() is calling run()                                                        *
+ *	 The goal is also to make things completely asychronous in respect to the interface.                *
+ *	 for example waiting for the generators to stop cannot happen in the interface because this         *
+ *	 blocks. Also the creation of a frame from the raw data is a costly operation that has              *
+ *	 to be done separately.                                                                             *
+ *	 So there is this thread that has only an event loop that processes the requests of the interface   *
+ *	 (like the two mentioned above).                                                                    *
+ ********************************************************************************************************/
 
-
+/* 
+ * Buddha constructor
+ * Called from ControlWindow constructor which was called by main()                                     *
+ */
 Buddha::Buddha( QObject *parent ) : QThread( parent ) {
+	// Because
 	size = w = h = lowr = lowg = lowb = highr = highg = highb = 0;
 	cre = cim = scale = 0.0;
 	raw = NULL;
@@ -49,14 +62,21 @@ Buddha::Buddha( QObject *parent ) : QThread( parent ) {
 	threads = 0;
 	generatorsStatus = STOP;
 
+	start(); // Call run()
 
-	start();
 	// this is foundamental for a correct handling of the signals.
 	// read here for explainations: http://huntharo.com/huntharo/Blog/Entries/2009/8/21_QThread_signals_slots_-_Why_your_calls_stay_in_the_main_thread.html
+	// http://mayaposch.wordpress.com/2011/11/01/how-to-really-truly-use-qthreads-the-full-explanation/
+	// https://qt-project.org/doc/qt-5.1/qtdoc/index.html#signals-and-slots-across-threads
+	// https://qt-project.org/doc/qt-5.1/qtcore/thread-basics.html
 	QObject::moveToThread( this );
 }
 
-
+void Buddha::run ( ) {
+	qDebug() << "Buddha::run(), is thread " << QThread::currentThreadId();
+	exec();	// To start an event loop, exec() must be called inside run(). Thread affinity can be changed using moveToThread().
+	stopGenerators( );
+}
 
 
 
@@ -192,17 +212,6 @@ Buddha::~Buddha ( ) {
 	free( raw );
 	free( RGBImage );
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 void Buddha::changeThreadNumber ( int threads ) {
@@ -358,16 +367,5 @@ void Buddha::resumeGenerators ( ) {
 
 
 
-void Buddha::run ( ) {
-	qDebug() << "Buddha::run(), is thread " << QThread::currentThreadId();
-	exec( );
-	// the goal is also to make things completely asychronous in respect to the interface.
-	// for example waiting for the generators to stop cannot happen in the interface because this
-	// blocks. Also the creation of a frame from the raw data is a costly operation that has
-	// to be done separately.
-	// So there is this thread that has only an event loop that processes the requests of the interface
-	// (like the two mentioned above).
-	
-	stopGenerators( );
-}
+
 

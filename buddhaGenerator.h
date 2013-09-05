@@ -56,10 +56,9 @@ public:
 	// general data and utility functions
 	Buddha* b;
 	BuddhaGenerator( )   { raw = NULL; }
-	~BuddhaGenerator ( ) { delete[] raw; }
+	~BuddhaGenerator( )  { delete[] raw; }
 
 	void initialize ( Buddha* b );
-
 
 	// for the raw image and the sequence of points
 	vector<complex<double>> seq;
@@ -86,7 +85,7 @@ public:
 	void pause ( );
 	void stop ( );
 	void resume ( );
-	bool flow ( );				// test if we have to stop, pause or whatever
+	bool flow ( );	 // test if we have to stop, pause or whatever
 	void run ( );	
 };
 

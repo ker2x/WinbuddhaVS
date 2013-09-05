@@ -66,8 +66,7 @@ private:
 	double mousey;
 	QPoint begMouse;
 	QPoint endMouse;
-        QPoint imageOffset;
-	
+    QPoint imageOffset;
 	
 	void scroll ( int dx, int dy );
 	void zoom ( double f, int cutdx = 0, int cutdy = 0 );
@@ -77,13 +76,11 @@ public slots:
 	void setMouseMode( bool );
 	void sendFrameRequest( );
 	void canRestartDrawing( );
-public:
-	
 
+public:
 	QTimer* timer;
 	RenderWindow( ControlWindow* parent, Buddha* b );
 	
-	//bool valuesChanged( );
 protected:
 	void paintEvent(QPaintEvent *event);
 	void resizeEvent(QResizeEvent *event);
@@ -95,7 +92,7 @@ protected:
 	void closeEvent(QCloseEvent* event );
 signals:
 	void frameRequest( );
-	//void resizeBuffers( );
+
 };
 
 #endif
